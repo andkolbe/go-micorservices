@@ -14,7 +14,11 @@ func main() {
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		log.Println("Hello World")
 		// read everything that was in the request body into the variable d
-		d, _ := ioutil.ReadAll(r.Body)
+		d, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(rw, "Ooops", http.StatusBadRequest)
+			return
+		}
 		
 		fmt.Fprintf(rw, "Hello %s", d)
 	})
