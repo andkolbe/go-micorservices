@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
+	"github.com/andkolbe/go-microservices/handlers"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/andkolbe/go-microservices/handlers"
 )
 
 func main() {
@@ -18,8 +18,11 @@ func main() {
 	ph := handlers.NewProducts(l)
 
 	// create a new server mux and register the handlers
-	sm := http.NewServeMux()
-	sm.Handle("/", ph)
+	sm := mux.NewRouter()
+
+	getRouter := sm.Methods("GET").Subrouter()
+	getRouter.HandleFunc("/", ph.GetProducts)
+	// sm.Handle("/products", ph)
 
 	// create a http server
 	s := &http.Server{
