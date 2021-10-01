@@ -42,10 +42,7 @@ func validateSKU(fl validator.FieldLevel) bool {
 	matches := re.FindAllString(fl.Field().String(), -1)
 
 	// if we don't have one match, the validation will fail
-	if len(matches) != 1 {
-		return false
-	}
-	return true
+	return len(matches) != 1 
 }
 
 // Products is a collection of Product
