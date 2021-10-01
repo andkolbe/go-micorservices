@@ -1,8 +1,13 @@
 package data
 
-import "time"
+import (
+	"encoding/json"
+	"io"
+	"time"
+)
 
 // Product defines the structure for an API product
+// we can add struct or field json tags to the struct. It lets you change the name of the output and remove fields from the output
 type Product struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
@@ -14,7 +19,15 @@ type Product struct {
 	DeletedOn   string  `json:"-"`
 }
 
-func GetProducts() []*Product {
+type Products []*Product
+
+// encapsulates all of the logic for encoding json
+func (p *Products) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
+}
+
+func GetProducts() Products {
 	return productList
 }
 
