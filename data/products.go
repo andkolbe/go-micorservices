@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"io"
 	"time"
 )
@@ -11,7 +12,7 @@ import (
 // we can add struct or field json tags to the struct. It lets you change the name of the output and remove fields from the output
 type Product struct {
 	ID          int     `json:"id"`
-	Name        string  `json:"name"`
+	Name        string  `json:"name" validate:"required"`
 	Description string  `json:"description"`
 	Price       float32 `json:"price"`
 	SKU         string  `json:"sku"`
@@ -23,6 +24,12 @@ type Product struct {
 func (p *Product) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(p)
+}
+
+// validate the Product struct
+func (p *Product) Validate() error {
+	validate := validator.New()
+	return validate.Struct(p)
 }
 
 // Products is a collection of Product
@@ -59,7 +66,7 @@ func UpdateProduct(id int, p *Product) error {
 	return nil
 }
 
-var ErrProductNotFound = fmt.Errorf("Product not found") 
+var ErrProductNotFound = fmt.Errorf("Product not found")
 
 func FindProduct(id int) (*Product, int, error) {
 	for i, p := range productList {
