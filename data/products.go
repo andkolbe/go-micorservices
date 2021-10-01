@@ -98,8 +98,8 @@ func getNextID() int {
 
 // productList is a hard coded list of products for this
 // example data source
-var productList = []*Product{
-	&Product{
+var productList = []*Product {
+	{
 		ID:          1,
 		Name:        "Latte",
 		Description: "Frothy milky coffee",
@@ -108,7 +108,7 @@ var productList = []*Product{
 		CreatedOn:   time.Now().UTC().String(),
 		UpdatedOn:   time.Now().UTC().String(),
 	},
-	&Product{
+	{
 		ID:          2,
 		Name:        "Espresso",
 		Description: "Short and strong coffee without milk",
