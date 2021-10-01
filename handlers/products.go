@@ -16,87 +16,56 @@
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/andkolbe/go-microservices/data"
 	"github.com/gorilla/mux"
+	"github.com/andkolbe/go-microservices/data"
 )
 
-// Products is a http.Handler
+// KeyProduct is a key used for the Product object in the context
+type KeyProduct struct{}
+
+// Products handler for getting and updating products
 type Products struct {
 	l *log.Logger
+	v *data.Validation
 }
 
-// NewProducts creates a products handler with the given logger
-func NewProducts(l *log.Logger) *Products {
-	return &Products{l}
+// NewProducts returns a new products handler with the given logger
+func NewProducts(l *log.Logger, v *data.Validation) *Products {
+	return &Products{l, v}
 }
 
-// an encoder does the same thing as marshal but instead of returning a slice of data or an error, it's writing the output direct to an io writer
-// the reason we want to use an encoder and write direct is because then we aren't having to buffer anything into memory
-// we don't have to allocate memory for the data object. If you have a large json document, then that could be a real consideration
-// the encoder is also faster. Makes a big deal with microservices
+// ErrInvalidProductPath is an error message when the product path is not valid
+var ErrInvalidProductPath = fmt.Errorf("Invalid Path, path should be /products/[id]")
 
-func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
-	p.l.Println("Handle POST Product")
-
-	prod := r.Context().Value(KeyProduct{}).(data.Product)
-
-	data.AddProduct(&prod)
+// GenericError is a generic error message returned by a server
+type GenericError struct {
+	Message string `json:"message"`
 }
 
-func (p *Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
+// ValidationError is a collection of validation error messages
+type ValidationError struct {
+	Messages []string `json:"messages"`
+}
+
+// getProductID returns the product ID from the URL
+// Panics if cannot convert the id into an integer
+// this should never happen as the router ensures that
+// this is a valid number
+func getProductID(r *http.Request) int {
+	// parse the product id from the url
 	vars := mux.Vars(r)
+
+	// convert the id into an integer and return
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(rw, "Unable to convert id", http.StatusBadRequest)
+		// should never happen
+		panic(err)
 	}
 
-	p.l.Println("Handle PUT Product", id)
-	prod := r.Context().Value(KeyProduct{}).(data.Product)
-	
-	err = data.UpdateProduct(id, &prod)
-	if err == data.ErrProductNotFound {
-		http.Error(rw, "Product not found in database", http.StatusNotFound)
-		return
-	}
-
-	if err != nil {
-		http.Error(rw, "Product not found", http.StatusInternalServerError)
-		return
-	}
+	return id
 }
-
-type KeyProduct struct {}
-
-// check that the body of the request is the correct format
-func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		prod := data.Product{}
-
-		err := prod.FromJSON(r.Body)
-		if err != nil {
-			// we got a bad request
-			http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
-			return
-		}
-
-		// validate the product
-		err = prod.Validate()
-		if err != nil {
-			http.Error(rw, fmt.Sprintf("error validating product: %s", err), http.StatusBadRequest)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), KeyProduct{}, prod)
-		req := r.WithContext(ctx)
-
-		next.ServeHTTP(rw, req)
-	})
-}
-
-// classic uses for middleware: CORS, authentication
