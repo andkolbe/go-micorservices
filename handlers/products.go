@@ -1,18 +1,3 @@
-// package classification of Product API
-// 
-// Documentation for Product API
-// 
-// Schemes: http
-// BasePath: /
-// Version: 1.0.0
-// 
-// Consumes: 
-// - application/json
-// 
-// Produces:
-// - application/json
-// swagger:meta
-
 package handlers
 
 import (
@@ -40,7 +25,7 @@ func NewProducts(l *log.Logger, v *data.Validation) *Products {
 }
 
 // ErrInvalidProductPath is an error message when the product path is not valid
-var ErrInvalidProductPath = fmt.Errorf("Invalid Path, path should be /products/[id]")
+var ErrInvalidProductPath = fmt.Errorf("invalid Path, path should be /products/[id]")
 
 // GenericError is a generic error message returned by a server
 type GenericError struct {
