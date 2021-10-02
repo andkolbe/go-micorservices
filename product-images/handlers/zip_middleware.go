@@ -9,6 +9,8 @@ import (
 type GzipHandler struct {
 }
 
+// gzip will reduce the size of the data by 1/3
+
 func (g *GzipHandler) GzipMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
