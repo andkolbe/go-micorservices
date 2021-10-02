@@ -19,7 +19,7 @@ import (
 
 func main() {
 
-	l := log.New(os.Stdout, "products-api ", log.LstdFlags)
+	l := log.New(os.Stdout, "products-api", log.LstdFlags)
 	v := data.NewValidation()
 
 	// create the handlers
