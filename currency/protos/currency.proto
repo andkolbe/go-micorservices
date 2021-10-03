@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "./";
+
+service Currency {
+    rpc GetRate(RateRequest) returns (RateResponse);
+}
+
+message RateRequest {
+    string Base = 1;
+    string Destination = 2;
+}
+
+message RateResponse {
+    float Rate = 1;
+}
+
+// JOSN is about encoding down to a string
+// with Proto Buffs, it's about encoding down to binary 
+
+// to generate Go code from a Proto Buff, you need protoc
+
+// GRPC is the framework that uses Protocol Buffers as a message
+// GRPC is Google's implementation of the RPC protocol
